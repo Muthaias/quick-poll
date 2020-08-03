@@ -1,0 +1,1 @@
+podman build --tag fedora:quick-poll -f Dockerfile
