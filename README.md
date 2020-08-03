@@ -1,2 +1,2 @@
 # quick-poll
-A system create quick public polls
+A system to create quick public polls
