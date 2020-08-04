@@ -1,2 +1,5 @@
 flask
 SQLAlchemy
+Flask-HTTPAuth
+Flask-SQLAlchemy
+jwt
