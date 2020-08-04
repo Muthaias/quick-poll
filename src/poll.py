@@ -1,13 +1,15 @@
 from flask import Blueprint, request, abort, jsonify
+from auth import auth
 
 poll = Blueprint("poll", __name__)
 polls = []
 
 @poll.route("/poll", methods=["POST", "GET"])
+@auth.login_required
 def create_poll():
+    owner = auth.current_user()
     desc = request.form if request.form else request.args
     title = desc.get("title")
-    owner = desc.get("owner")
     i = 0
     options = []
     option = None
@@ -30,5 +32,16 @@ def create_poll():
         "title": title,
         "option": options
     }
-    polls.append(owner)
+    polls.append(data)
     return jsonify(data)
+
+@poll.route("/poll", methods=["POST", "GET"])
+@auth.login_required
+def update_poll():
+
+
+@poll.route("/polls", methods=["GET"])
+@auth.login_required
+def list_polls():
+    owner = auth.current_user()
+    return jsonify([poll for poll in polls if poll["owner"] == owner])
