@@ -1,9 +1,8 @@
 from flask import Blueprint, request, abort, jsonify
 from auth import auth
-from uuid import uuid4
+from models.poll_model import db, Poll, PollOption
 
 poll = Blueprint("poll", __name__)
-polls = []
 
 def _get_options(desc):
     options = []
@@ -29,36 +28,45 @@ def create_poll():
     if owner == None or title == None:
         abort(400)
 
-    data = {
-        "id": str(uuid4()),
-        "owner": owner,
-        "title": title,
-        "options": options
-    }
-    polls.append(data)
-    return jsonify(data)
+    poll = Poll(title = title, owner = owner)
+    poll_options = [PollOption(value = option, poll=poll) for option in options]
+    db.session.add(poll)
+    db.session.commit()
+    return jsonify({
+        "id": poll.id
+    })
 
 @poll.route("/poll/<poll_id>", methods=["POST", "GET"])
 @auth.login_required
 def update_poll(poll_id: str):
-    print(poll_id, polls)
     desc = request.form if request.form else request.args
     title = desc.get("title")
     options = _get_options(desc)
-    data = next((poll for poll in polls if poll["id"] == poll_id), None)
 
-    if data == None:
-        abort(400)
+    poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    poll.title = title or poll.title
+    poll_options = [PollOption(value = option, poll=poll) for option in options]
+    poll.options = poll_options
+    db.session.commit()
 
-    data["title"] = title or data["title"]
-    data["options"] = options or data["options"]
-    
-    return jsonify(data)
-
+    return jsonify({
+        "id": poll.id,
+        "title": poll.title,
+        "owner": poll.owner,
+        "option": [option.value for option in poll.options]
+    })
 
 
 @poll.route("/polls", methods=["GET"])
 @auth.login_required
 def list_polls():
     owner = auth.current_user()
-    return jsonify([poll for poll in polls if poll["owner"] == owner])
+    polls = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.owner == owner).all()
+    return jsonify([
+        {
+            "id": poll.id,
+            "title": poll.title,
+            "owner": poll.owner,
+            "option": [option.value for option in poll.options]
+        } for poll in polls
+    ])
