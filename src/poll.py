@@ -43,6 +43,16 @@ def update_poll(poll_id: str):
         "options": [option.value for option in poll.options]
     })
 
+@poll.route("/poll/<poll_id>", methods=["DELETE"])
+@auth.login_required
+def delete_poll(poll_id: str):
+    poll = db.session.query(Poll).filter(Poll.id == poll_id).first()
+    db.session.delete(poll)
+    db.session.commit()
+    return jsonify({
+        "id": poll_id
+    })
+
 
 @poll.route("/polls", methods=["GET"])
 @auth.login_required
