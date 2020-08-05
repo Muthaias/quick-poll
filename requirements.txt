@@ -3,3 +3,5 @@ SQLAlchemy
 Flask-HTTPAuth
 Flask-SQLAlchemy
 jwt
+pytest
+requests
