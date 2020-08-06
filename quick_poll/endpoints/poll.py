@@ -48,17 +48,17 @@ def update_poll(poll_id: str):
     if poll == None:
         abort(404)
 
-    for option in options:
-        if not isinstance(option, dict):
-            abort(400)
-
-    option_dict = {option.id:option for option in poll.options}
-
     poll.title = title or poll.title
-    poll_options = [
-        PollOption(value = option.get("value", ""), count = option.get("count", 0), poll=poll) if option.get("id") == None else option_dict[option["id"]] for option in options
-    ]
-    poll.options = poll_options
+    
+    if options != None:
+        option_dict = {option.id:option for option in poll.options}
+        for option in options:
+            if not isinstance(option, dict):
+                abort(400)
+        poll_options = [
+            PollOption(value = option.get("value", ""), count = option.get("count", 0), poll=poll) if option.get("id") == None else option_dict[option["id"]] for option in options
+        ]
+        poll.options = poll_options
     db.session.commit()
 
     return jsonify(_poll_to_data(poll))
