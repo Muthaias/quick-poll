@@ -31,6 +31,9 @@ def update_poll(poll_id: str):
     options = desc.get("options")
 
     poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    if poll == None:
+        abort(404)
+
     poll.title = title or poll.title
     poll_options = [PollOption(value = option, poll=poll) for option in options]
     poll.options = poll_options
@@ -46,6 +49,9 @@ def update_poll(poll_id: str):
 @poll.route("/poll/<poll_id>", methods=["GET"])
 def read_poll(poll_id):
     poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    if poll == None:
+        abort(404)
+
     return jsonify({
         "id": poll.id,
         "url": url_for("poll.read_poll", poll_id = poll_id),
@@ -63,6 +69,9 @@ def read_poll(poll_id):
 @auth.login_required
 def delete_poll(poll_id: str):
     poll = db.session.query(Poll).filter(Poll.id == poll_id).first()
+    if poll == None:
+        abort(404)
+
     db.session.delete(poll)
     db.session.commit()
     return jsonify({
@@ -86,6 +95,9 @@ def list_polls():
 @poll.route("/vote/<option_id>", methods=["GET"])
 def vote(option_id):
     option = db.session.query(PollOption).filter(PollOption.id == option_id).first()
+    if option == None:
+        abort(404)
+
     option.count = option.count + 1
     db.session.commit()
     return jsonify({
