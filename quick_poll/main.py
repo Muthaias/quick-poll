@@ -1,5 +1,5 @@
 from app import app
-from poll import poll
+from endpoints.poll import poll
 
 app.register_blueprint(poll)
 
