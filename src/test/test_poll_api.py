@@ -76,5 +76,5 @@ def test_polls():
     data = resp.json()
     for poll in data:
         assert poll["id"] != None
-        assert poll["options"] != None
+        assert poll["url"] != None
         assert poll["title"] != None

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, abort, jsonify
+from flask import Blueprint, request, abort, jsonify, url_for
 from auth import auth
 from models.poll_model import db, Poll, PollOption
 
@@ -43,6 +43,22 @@ def update_poll(poll_id: str):
         "options": [option.value for option in poll.options]
     })
 
+@poll.route("/poll/<poll_id>", methods=["GET"])
+def read_poll(poll_id):
+    poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    return jsonify({
+        "id": poll.id,
+        "url": url_for("poll.read_poll", poll_id = poll_id),
+        "title": poll.title,
+        "owner": poll.owner,
+        "options": [{
+            "id": option.id,
+            "url": url_for("poll.vote", option_id = option.id),
+            "value": option.value,
+            "count": option.count
+        } for option in poll.options]
+    })
+
 @poll.route("/poll/<poll_id>", methods=["DELETE"])
 @auth.login_required
 def delete_poll(poll_id: str):
@@ -58,12 +74,22 @@ def delete_poll(poll_id: str):
 @auth.login_required
 def list_polls():
     owner = auth.current_user()
-    polls = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.owner == owner).all()
+    polls = db.session.query(Poll).filter(Poll.owner == owner).all()
     return jsonify([
         {
             "id": poll.id,
+            "url": url_for("poll.read_poll", poll_id = poll.id),
             "title": poll.title,
-            "owner": poll.owner,
-            "options": [option.value for option in poll.options]
         } for poll in polls
     ])
+
+@poll.route("/vote/<option_id>", methods=["GET"])
+def vote(option_id):
+    option = db.session.query(PollOption).filter(PollOption.id == option_id).first()
+    option.count = option.count + 1
+    db.session.commit()
+    return jsonify({
+        "id": option.id,
+        "value": option.value,
+        "count": option.count
+    })
