@@ -43,9 +43,14 @@ def test_update_poll(poll_id):
     payload = {
         "title": str(uuid4()),
         "options": [
-            str(uuid4()),
-            str(uuid4()),
-            str(uuid4())
+            {
+                "value": value,
+                "count": 0
+            } for value in [
+                str(uuid4()),
+                str(uuid4()),
+                str(uuid4())
+            ]
         ]
     }
     url = "%s/poll/%s" % (api_url, poll_id)
@@ -56,7 +61,12 @@ def test_update_poll(poll_id):
     data = resp.json()
     assert data["id"] == poll_id
     assert data["title"] == payload["title"]
-    assert json.dumps(data["options"]) == json.dumps(payload["options"])
+    assert json.dumps([
+        {
+            "value": option["value"],
+            "count": option["count"]
+        } for option in data["options"]
+    ]) == json.dumps(payload["options"])
 
 def test_delete_poll(poll_id):
     url = "%s/poll/%s" % (api_url, poll_id)

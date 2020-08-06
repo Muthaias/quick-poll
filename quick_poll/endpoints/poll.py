@@ -4,6 +4,20 @@ from models.poll_model import db, Poll, PollOption
 
 poll = Blueprint("poll", __name__)
 
+def _poll_to_data(poll):
+    return {
+        "id": poll.id,
+        "url": url_for("poll.read_poll", poll_id = poll.id),
+        "title": poll.title,
+        "owner": poll.owner,
+        "options": [{
+            "id": option.id,
+            "url": url_for("poll.vote", option_id = option.id),
+            "value": option.value,
+            "count": option.count
+        } for option in poll.options]
+    }
+
 @poll.route("/poll", methods=["POST"])
 @auth.login_required
 def create_poll():
@@ -34,17 +48,20 @@ def update_poll(poll_id: str):
     if poll == None:
         abort(404)
 
+    for option in options:
+        if not isinstance(option, dict):
+            abort(400)
+
+    option_dict = {option.id:option for option in poll.options}
+
     poll.title = title or poll.title
-    poll_options = [PollOption(value = option, poll=poll) for option in options]
+    poll_options = [
+        PollOption(value = option.get("value", ""), count = option.get("count", 0), poll=poll) if option.get("id") == None else option_dict[option["id"]] for option in options
+    ]
     poll.options = poll_options
     db.session.commit()
 
-    return jsonify({
-        "id": poll.id,
-        "title": poll.title,
-        "owner": poll.owner,
-        "options": [option.value for option in poll.options]
-    })
+    return jsonify(_poll_to_data(poll))
 
 @poll.route("/poll/<poll_id>", methods=["GET"])
 def read_poll(poll_id):
@@ -52,18 +69,7 @@ def read_poll(poll_id):
     if poll == None:
         abort(404)
 
-    return jsonify({
-        "id": poll.id,
-        "url": url_for("poll.read_poll", poll_id = poll_id),
-        "title": poll.title,
-        "owner": poll.owner,
-        "options": [{
-            "id": option.id,
-            "url": url_for("poll.vote", option_id = option.id),
-            "value": option.value,
-            "count": option.count
-        } for option in poll.options]
-    })
+    return jsonify(_poll_to_data(poll))
 
 @poll.route("/poll/<poll_id>", methods=["DELETE"])
 @auth.login_required
