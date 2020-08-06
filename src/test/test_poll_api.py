@@ -63,7 +63,14 @@ def test_delte_poll(poll_id):
     resp = requests.delete(url)
 
     assert resp.status_code == 200
+def test_delete_poll(poll_id):
+    url = "%s/poll/%s" % (api_url, poll_id)
+    resp = requests.delete(url)
 
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert data["id"] == poll_id
     data = resp.json()
     assert data["id"] == poll_id
 
@@ -78,3 +85,22 @@ def test_polls():
         assert poll["id"] != None
         assert poll["url"] != None
         assert poll["title"] != None
+
+def test_vote(poll_id):
+    url = "%s/poll/%s" % (api_url, poll_id)
+
+    resp = requests.get(url)
+    assert resp.status_code == 200
+
+    poll_data = resp.json()
+    assert poll_data["options"] != None
+    assert len(poll_data["options"]) > 0
+
+    option = poll_data["options"][0]
+    vote_url = "%s/vote/%s" % (api_url, option["id"])
+
+    vote_resp = requests.get(vote_url)
+    assert vote_resp.status_code == 200
+
+    vote_data = vote_resp.json()
+    assert vote_data["count"] == option["count"] + 1
