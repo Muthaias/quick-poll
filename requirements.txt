@@ -5,3 +5,4 @@ Flask-SQLAlchemy
 jwt
 pytest
 requests
+jsonschema
