@@ -58,19 +58,12 @@ def test_update_poll(poll_id):
     assert data["title"] == payload["title"]
     assert json.dumps(data["options"]) == json.dumps(payload["options"])
 
-def test_delte_poll(poll_id):
-    url = "%s/poll/%s" % (api_url, poll_id)
-    resp = requests.delete(url)
-
-    assert resp.status_code == 200
 def test_delete_poll(poll_id):
     url = "%s/poll/%s" % (api_url, poll_id)
     resp = requests.delete(url)
 
     assert resp.status_code == 200
 
-    data = resp.json()
-    assert data["id"] == poll_id
     data = resp.json()
     assert data["id"] == poll_id
 
