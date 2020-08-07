@@ -1,5 +1,7 @@
-from app import db
 from uuid import uuid4
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 def _uuid_str():
     return str(uuid4())

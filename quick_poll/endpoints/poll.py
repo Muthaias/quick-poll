@@ -1,6 +1,6 @@
 from flask import Blueprint, request, abort, jsonify, url_for
-from auth import auth
-from models.poll_model import db, Poll, PollOption
+from .auth import auth
+from ..models.poll_model import db, Poll, PollOption
 
 poll = Blueprint("poll", __name__)
 

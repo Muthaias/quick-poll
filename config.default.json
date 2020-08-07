@@ -1,0 +1,4 @@
+{
+    "SQLALCHEMY_DATABASE_URI": "sqlite:///instance/quick-poll.db",
+    "SQLALCHEMY_TRACK_MODIFICATIONS": false
+}
