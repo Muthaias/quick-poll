@@ -1,8 +1,11 @@
+cryptography
 flask
 SQLAlchemy
 Flask-HTTPAuth
 Flask-SQLAlchemy
-jwt
+pyjwt
 pytest
 requests
 jsonschema
+Flask-Session
+redis

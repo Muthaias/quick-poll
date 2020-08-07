@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flask_session import Session
 from uuid import uuid4
 import os
 import json
@@ -9,8 +10,11 @@ def create_app():
     db_uri = "sqlite:///%s/%s" % (app.instance_path, "quick-poll.db")
     app.config.from_mapping(
         SQLALCHEMY_DATABASE_URI = db_uri,
-        SQLALCHEMY_TRACK_MODIFICATIONS = False
+        SQLALCHEMY_TRACK_MODIFICATIONS = False,
+        SESSION_TYPE = "redis",
+        SESSION_PERMANENT = False,
     )
+    Session(app)
     config_path = os.path.join(app.instance_path, "config.json")
     try:
         if os.path.exists(config_path):
