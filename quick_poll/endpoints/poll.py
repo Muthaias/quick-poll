@@ -1,8 +1,16 @@
-from flask import Blueprint, request, abort, jsonify, url_for
+from flask import Blueprint, request, abort, jsonify, url_for, send_file
+import io
+import qrcode
 from .auth import auth
 from ..models.poll_model import db, Poll, PollOption
 
 poll = Blueprint("poll", __name__)
+
+def _serve_pil_image(pil_img):
+    img_io = io.BytesIO()
+    pil_img.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
 
 def _poll_to_data(poll):
     return {
@@ -95,6 +103,7 @@ def list_polls():
             "id": poll.id,
             "url": url_for("poll.read_poll", poll_id = poll.id),
             "title": poll.title,
+            "qr_url": url_for("poll.poll_qr_code", poll_id = poll.id)
         } for poll in polls
     ])
 
@@ -111,3 +120,13 @@ def vote(option_id):
         "value": option.value,
         "count": option.count
     })
+
+@poll.route("/poll/<poll_id>/qr", methods=["GET"])
+def poll_qr_code(poll_id):
+    poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    if poll == None:
+        abort(404)
+
+    url = url_for("poll.read_poll", poll_id = poll.id, _external=True)
+    img = qrcode.make(url)
+    return _serve_pil_image(img)

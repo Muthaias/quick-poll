@@ -9,3 +9,5 @@ requests
 jsonschema
 Flask-Session
 redis
+Pillow
+qrcode[pil]
