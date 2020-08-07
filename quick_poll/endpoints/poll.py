@@ -29,7 +29,7 @@ def create_poll():
     if owner == None or title == None:
         abort(400)
 
-    poll = Poll(title = title, owner = owner)
+    poll = Poll(title = title, owner = owner.id)
     poll_options = [PollOption(value = option, poll=poll) for option in options]
     db.session.add(poll)
     db.session.commit()
@@ -89,7 +89,7 @@ def delete_poll(poll_id: str):
 @auth.login_required
 def list_polls():
     owner = auth.current_user()
-    polls = db.session.query(Poll).filter(Poll.owner == owner).all()
+    polls = db.session.query(Poll).filter(Poll.owner == owner.id).all()
     return jsonify([
         {
             "id": poll.id,

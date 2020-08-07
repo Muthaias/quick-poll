@@ -7,11 +7,16 @@ api_url = "http://localhost:5000"
 headers = {
     'Content-Type': 'application/json'
 }
+auth = ('admin_id', '')
 
 @pytest.fixture
 def poll_id():
     url = "%s/polls" % (api_url)
-    resp = requests.get(url)
+    resp = requests.get(
+        url,
+        headers = headers,
+        auth = auth
+    )
     assert resp.status_code == 200
 
     data = resp.json()
@@ -32,7 +37,12 @@ def test_create_poll():
     }
     
     url = "%s/poll" % api_url
-    resp = requests.post(url, headers=headers, json=payload)
+    resp = requests.post(
+        url,
+        headers = headers,
+        json = payload,
+        auth = auth
+    )
 
     assert resp.status_code == 200
 
@@ -54,7 +64,12 @@ def test_update_poll(poll_id):
         ]
     }
     url = "%s/poll/%s" % (api_url, poll_id)
-    resp = requests.post(url, headers=headers, json=payload)
+    resp = requests.post(
+        url,
+        headers = headers,
+        json = payload,
+        auth = auth
+    )
 
     assert resp.status_code == 200
 
@@ -70,7 +85,11 @@ def test_update_poll(poll_id):
 
 def test_delete_poll(poll_id):
     url = "%s/poll/%s" % (api_url, poll_id)
-    resp = requests.delete(url)
+    resp = requests.delete(
+        url,
+        headers = headers,
+        auth = auth
+    )
 
     assert resp.status_code == 200
 
@@ -79,7 +98,11 @@ def test_delete_poll(poll_id):
 
 def test_polls():
     url = "%s/polls" % api_url
-    resp = requests.get(url)
+    resp = requests.get(
+        url,
+        headers = headers,
+        auth = auth
+    )
 
     assert resp.status_code == 200
 
