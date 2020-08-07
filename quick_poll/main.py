@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, jsonify
+from uuid import uuid4
 import os
 import json
 from quick_poll.endpoints.poll import poll
@@ -32,8 +33,12 @@ def create_app():
 
     app.register_blueprint(poll)
 
+    app_id = app.config.get("QUICKPOLL_ID", str(uuid4()))
     @app.route('/')
     def api_root():
-        return 'Welcome to the QuickPoll API root'
+        return jsonify({
+            "message": "Welcome to the QuickPoll API root",
+            "id": app_id
+        })
 
     return app
