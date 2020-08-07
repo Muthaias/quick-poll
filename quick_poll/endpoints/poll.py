@@ -22,7 +22,8 @@ def _poll_to_data(poll):
             "id": option.id,
             "url": url_for("poll.vote", option_id = option.id),
             "value": option.value,
-            "count": option.count
+            "count": option.count,
+            "qr_url": url_for("poll.vote_qr_code", option_id = option.id)
         } for option in poll.options]
     }
 
@@ -120,6 +121,16 @@ def vote(option_id):
         "value": option.value,
         "count": option.count
     })
+
+@poll.route("/vote/<option_id>/qr", methods=["GET"])
+def vote_qr_code(option_id):
+    option = db.session.query(PollOption).filter(PollOption.id == option_id).first()
+    if option == None:
+        abort(404)
+
+    url = url_for("poll.vote", option_id = option.id, _external=True)
+    img = qrcode.make(url)
+    return _serve_pil_image(img)
 
 @poll.route("/poll/<poll_id>/qr", methods=["GET"])
 def poll_qr_code(poll_id):
