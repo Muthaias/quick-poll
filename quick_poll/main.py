@@ -4,6 +4,7 @@ from uuid import uuid4
 import os
 import json
 from quick_poll.endpoints.poll import poll
+from quick_poll.endpoints.user import user
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -36,6 +37,7 @@ def create_app():
     db.init_app(app)
 
     app.register_blueprint(poll)
+    app.register_blueprint(user)
 
     app_id = app.config.get("QUICKPOLL_ID", str(uuid4()))
     @app.route('/')
