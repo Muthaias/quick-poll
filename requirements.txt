@@ -11,3 +11,4 @@ Flask-Session
 redis
 Pillow
 qrcode[pil]
+flake8

@@ -3,28 +3,31 @@ import pytest
 import json
 from uuid import uuid4
 
+
 api_url = "http://localhost:5000"
 headers = {
     'Content-Type': 'application/json'
 }
 auth = ('admin_id', '')
 
+
 @pytest.fixture
 def poll_id():
     url = "%s/polls" % (api_url)
     resp = requests.get(
         url,
-        headers = headers,
-        auth = auth
+        headers=headers,
+        auth=auth
     )
     assert resp.status_code == 200
 
     data = resp.json()
     assert len(data) > 0
     poll_id = data[0]["id"]
-    assert poll_id != None
+    assert poll_id is not None
 
     return poll_id
+
 
 def test_create_poll():
     payload = {
@@ -35,19 +38,20 @@ def test_create_poll():
             "c"
         ]
     }
-    
+
     url = "%s/poll" % api_url
     resp = requests.post(
         url,
-        headers = headers,
-        json = payload,
-        auth = auth
+        headers=headers,
+        json=payload,
+        auth=auth
     )
 
     assert resp.status_code == 200
 
     data = resp.json()
-    assert data["id"] != None
+    assert data["id"] is not None
+
 
 def test_update_poll(poll_id):
     payload = {
@@ -66,9 +70,9 @@ def test_update_poll(poll_id):
     url = "%s/poll/%s" % (api_url, poll_id)
     resp = requests.post(
         url,
-        headers = headers,
-        json = payload,
-        auth = auth
+        headers=headers,
+        json=payload,
+        auth=auth
     )
 
     assert resp.status_code == 200
@@ -83,12 +87,13 @@ def test_update_poll(poll_id):
         } for option in data["options"]
     ]) == json.dumps(payload["options"])
 
+
 def test_delete_poll(poll_id):
     url = "%s/poll/%s" % (api_url, poll_id)
     resp = requests.delete(
         url,
-        headers = headers,
-        auth = auth
+        headers=headers,
+        auth=auth
     )
 
     assert resp.status_code == 200
@@ -96,21 +101,23 @@ def test_delete_poll(poll_id):
     data = resp.json()
     assert data["id"] == poll_id
 
+
 def test_polls():
     url = "%s/polls" % api_url
     resp = requests.get(
         url,
-        headers = headers,
-        auth = auth
+        headers=headers,
+        auth=auth
     )
 
     assert resp.status_code == 200
 
     data = resp.json()
     for poll in data:
-        assert poll["id"] != None
-        assert poll["url"] != None
-        assert poll["title"] != None
+        assert poll["id"] is not None
+        assert poll["url"] is not None
+        assert poll["title"] is not None
+
 
 def test_vote(poll_id):
     url = "%s/poll/%s" % (api_url, poll_id)
@@ -119,7 +126,7 @@ def test_vote(poll_id):
     assert resp.status_code == 200
 
     poll_data = resp.json()
-    assert poll_data["options"] != None
+    assert poll_data["options"] is not None
     assert len(poll_data["options"]) > 0
 
     option = poll_data["options"][0]
