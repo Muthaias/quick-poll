@@ -58,7 +58,10 @@ def update_poll(poll_id: str):
     title = desc.get("title")
     options = desc.get("options")
 
-    poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    poll = db.session.query(Poll) \
+                     .outerjoin(Poll.options) \
+                     .filter(Poll.id == poll_id) \
+                     .first()
     if poll is None:
         abort(404)
 
@@ -74,7 +77,8 @@ def update_poll(poll_id: str):
                 value=option.get("value", ""),
                 count=option.get("count", 0),
                 poll=poll
-            ) if option.get("id") is None else option_dict[option["id"]] for option in options
+            ) if option.get("id") is None
+            else option_dict[option["id"]] for option in options
         ]
         poll.options = poll_options
     db.session.commit()
@@ -84,7 +88,10 @@ def update_poll(poll_id: str):
 
 @poll.route("/poll/<poll_id>", methods=["GET"])
 def read_poll(poll_id):
-    poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    poll = db.session.query(Poll) \
+                     .outerjoin(Poll.options) \
+                     .filter(Poll.id == poll_id) \
+                     .first()
     if poll is None:
         abort(404)
 
@@ -122,7 +129,9 @@ def list_polls():
 
 @poll.route("/vote/<option_id>", methods=["GET"])
 def vote(option_id):
-    option = db.session.query(PollOption).filter(PollOption.id == option_id).first()
+    option = db.session.query(PollOption) \
+                       .filter(PollOption.id == option_id) \
+                       .first()
     if option is None:
         abort(404)
 
@@ -137,7 +146,9 @@ def vote(option_id):
 
 @poll.route("/vote/<option_id>/qr", methods=["GET"])
 def vote_qr_code(option_id):
-    option = db.session.query(PollOption).filter(PollOption.id == option_id).first()
+    option = db.session.query(PollOption) \
+                       .filter(PollOption.id == option_id) \
+                       .first()
     if option is None:
         abort(404)
 
@@ -148,7 +159,10 @@ def vote_qr_code(option_id):
 
 @poll.route("/poll/<poll_id>/qr", methods=["GET"])
 def poll_qr_code(poll_id):
-    poll = db.session.query(Poll).outerjoin(Poll.options).filter(Poll.id == poll_id).first()
+    poll = db.session.query(Poll) \
+                     .outerjoin(Poll.options) \
+                     .filter(Poll.id == poll_id) \
+                     .first()
     if poll is None:
         abort(404)
 
